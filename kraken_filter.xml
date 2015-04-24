@@ -1,0 +1,122 @@
+<tool id="kraken_filter" name="kraken_filter">
+	<description>kraken result filter</description>
+	<requirements>
+	  <requirement type="package" version="2.7.4">python</requirement>
+	</requirements>
+	<command interpreter="python">kraken_filter.py 
+		--dbtype="${databaseChoice.database}"
+		#if $databaseChoice.database == "builtinDB":
+		  --db="${databaseChoice.builtinDatabases.fields.path}"
+		#else:
+		  --db="NOT_SUPPORTED_YET"
+		#end if
+	
+		--in1="${dataFormat.input1}"
+		--out1="${kraken_filtered_r1}"        
+
+		#if $dataFormat.inputFormat == "pairedFastQ" or $dataFormat.inputFormat == "pairedFastA":
+		  --in2="${dataFormat.input2}"
+		  --out2="${kraken_filtered_r2}"
+		#end if
+
+		#if $dataFormat.inputFormat == "singleFastQ" or $dataFormat.inputFormat == "pairedFastQ":
+		  --input-format="fq"
+		#else:
+		  --input-format="fa"
+		#end if
+
+		#if $whichFilter.whichFilterp == "filterClassified":
+		  --taxid="${whichFilter.taxonID}"
+		#else:
+		  --taxid="0"
+		#end if
+
+                --kraken-results="${kraken_classification}"
+        
+                --logfile="${kraken_filter_log}"
+	</command>
+	<inputs>
+		<conditional name="databaseChoice">
+			<param name="database" type="select" label="Do you want to use your own kraken database or use the built-in ktest database?">
+				<option value="builtinDB">Use built-in db (ktest)</option>
+				<option value="myownDB">Use a db from my history</option>
+			</param>
+			<when value="builtinDB">
+				<param name="builtinDatabases" type="select" label="Select a built-in kraken database">
+					<options from_data_table="krakenDBs">
+						<filter type="sort_by" column="2" />
+						<validator type="no_options" message="No databases are available" />
+					</options>
+				</param>
+			</when>
+			<when value="myownDB">
+				<param name="myownDB" type="data" format="fasta" metadata_name="dbkey" label="Select database" />
+			</when>
+		</conditional>
+
+                <conditional name="whichFilter">
+			<param name="whichFilterp" type="select" label="Filter classified or unclassified reads?">
+				<option value="filterClassified">Filter classified reads</option>
+				<option value="filterUnclassified">Filter unclassified reads</option>
+			</param>
+			<when value="filterClassified">
+				<param name="taxonID" type="integer" label="Taxonomy ID of root taxon (default:1 - 'all')" value="1" default="1" />				
+			</when>
+                </conditional>
+
+		<param name = "kraken_classification" type="data" format="tabular" label="Kraken classification output" />
+<!--
+		<conditional name="libraryType">
+			<param name="libtype" type="select" label="Is this library single- or paired-end?">
+				<option value="single">Single-end</option>
+				<option value="paired">Paired-end</option>
+			</param>
+			<when value="single">
+				<param name="input1" type="data" format="fasta,fastq,fasta.gz,fasta.bz2,fa.gz,fq.gz,fa,fq" label="Fasta/Fastq file" />
+			</when>
+			<when value="paired">
+				<param name="input1" type="data" format="fasta,fastq,fasta.gz,fasta.bz2,fa.gz,fq.gz,fa,fq" label="Left Fasta/Fastq file" />
+				<param name="input2" type="data" format="fasta,fastq,fasta.gz,fasta.bz2,fa.gz,fq.gz,fa,fq" label="Right Fasta/Fastq file" />
+			</when>
+		</conditional>
+-->
+<!-- new -->
+
+		<conditional name="dataFormat">
+			<param name="inputFormat" type="select" label="Please select input file type and library type."> 
+				<option value="singleFastQ">Single-end FastQ</option>
+				<option value="pairedFastQ">Paired-end FastQ</option>
+				<option value="singleFastA">Single-end FastA</option>
+				<option value="pairedFastA">Paired-end FastA</option>
+			</param>
+			<when value="singleFastQ">
+				<param name="input1" type="data" format="fastq,fq.gz,fq" label="FastQ file" />
+			</when>
+			<when value="pairedFastQ">
+				<param name="input1" type="data" format="fastq,fq.gz,fq" label="Forward/Left FastQ file" />
+				<param name="input2" type="data" format="fastq,fq.gz,fq" label="Reverse/Right FastQ file" />
+			</when>
+			<when value="singleFastA">
+				<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="FastA file" />
+			</when>
+			<when value="pairedFastA">
+				<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Forward/Left FastA file" />
+				<param name="input2" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Reverse/Right FastA file" />
+			</when>
+		</conditional>
+
+<!-- new -->
+
+	</inputs>
+	<outputs>
+                <data format="fastqillumina" name="kraken_filtered_r1" label="${tool.name} filtered fwd-reads of ${on_string}" />
+                <data format="fastqillumina" name="kraken_filtered_r2" label="${tool.name} filtered rev-reads of ${on_string}">
+                	<filter>libraryType['libtype'] == "paired"</filter>
+                </data>
+                <data format="txt" name="kraken_filter_log" label="${tool.name} logfile (${on_string})" />
+	</outputs>
+
+	<help>
+	This tool is a downstream filter for kraken-classified sequences. 
+	</help>
+</tool>

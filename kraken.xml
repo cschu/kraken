@@ -1,0 +1,112 @@
+<tool id="kraken" name="kraken">
+	<description>taxonomic sequence classifier</description>
+	<requirements>
+	  <requirement type="package" version="2.7.4">python</requirement>
+	  <requirement type="package" version="0.10.5">kraken</requirement>
+	</requirements>
+	<command interpreter="python">kraken.py 
+		--dbtype="${databaseChoice.database}"
+		#if $databaseChoice.database == "builtinDB":
+		  --db="${databaseChoice.builtinDatabases.fields.path}"
+		#else:
+		  --db="NOT_SUPPORTED_YET"
+		#end if
+
+		--in1="${dataFormat.input1}"
+		#if $dataFormat.inputFormat == "pairedFastQ" or $dataFormat.inputFormat == "pairedFastA":
+		  --in2="${dataFormat.input2}"
+		#end if
+
+		#if $dataFormat.inputFormat == "singleFastQ" or $dataFormat.inputFormat == "pairedFastQ":
+		  --input-format="fq"
+		#else:
+		  --input-format="fa"
+		#end if
+
+                #if $quickMode.useQuickMode == "useQuick":
+                  --quick
+                  --min-hits="${quickMode.minHits.value}"
+                #end if
+
+	<!--		$output -->
+                $kraken_summary_tsv
+                $classified_seqs_fq
+                $unclassified_seqs_fq
+		</command>
+	<inputs>
+		<conditional name="databaseChoice">
+			<param name="database" type="select" label="Do you want to use your own kraken database or use the built-in ktest database?">
+				<option value="builtinDB">Use built-in db</option>
+				<option value="myownDB">Use a db from my history</option>
+			</param>
+			<when value="builtinDB">
+				<param name="builtinDatabases" type="select" label="Select a built-in kraken database">
+					<options from_data_table="krakenDBs">
+						<filter type="sort_by" column="2" />
+						<validator type="no_options" message="No databases are available" />
+					</options>
+				</param>
+			</when>
+			<when value="myownDB">
+				<param name="myownDB" type="data" format="fasta" metadata_name="dbkey" label="Select database" />
+			</when>
+		</conditional>
+
+		<conditional name="quickMode">
+			<param name="useQuickMode" type="select" label="Use Quick operation? (use first hit or hits)">
+				<option value="useQuick">Use Quick operation</option>
+				<option value="dontUseQuick">Do not use Quick operation</option>
+			</param>
+			<when value="useQuick">
+				<param name="minHits" type="integer" label="Minimum number of hits required for classification (default:1)" value="1" default="1" />
+			</when>
+		</conditional>
+
+<!--		<conditional name="libraryType">
+			<param name="libtype" type="select" label="Is this library single- or paired-end?">
+				<option value="single">Single-end</option>
+				<option value="paired">Paired-end</option>
+			</param>
+			<when value="single">
+				<param name="input1" type="data" format="fasta,fastq,fasta.gz,fasta.bz2,fa.gz,fq.gz,fa,fq" label="Fasta/Fastq file" />
+			</when>
+			<when value="paired">
+				<param name="input1" type="data" format="fasta,fastq,fasta.gz,fasta.bz2,fa.gz,fq.gz,fa,fq" label="Left Fasta/Fastq file" />
+				<param name="input2" type="data" format="fasta,fastq,fasta.gz,fasta.bz2,fa.gz,fq.gz,fa,fq" label="Right Fasta/Fastq file" />
+			</when>
+		</conditional> -->
+		<conditional name="dataFormat">
+			<param name="inputFormat" type="select" label="Please select input file type and library type."> 
+				<option value="singleFastQ">Single-end FastQ</option>
+				<option value="pairedFastQ">Paired-end FastQ</option>
+				<option value="singleFastA">Single-end FastA</option>
+				<option value="pairedFastA">Paired-end FastA</option>
+			</param>
+			<when value="singleFastQ">
+				<param name="input1" type="data" format="fastq,fq.gz,fq" label="FastQ file" />
+			</when>
+			<when value="pairedFastQ">
+				<param name="input1" type="data" format="fastq,fq.gz,fq" label="Forward/Left FastQ file" />
+				<param name="input2" type="data" format="fastq,fq.gz,fq" label="Reverse/Right FastQ file" />
+			</when>
+			<when value="singleFastA">
+				<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="FastA file" />
+			</when>
+			<when value="pairedFastA">
+				<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Forward/Left FastA file" />
+				<param name="input2" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Reverse/Right FastA file" />
+			</when>
+		</conditional>
+
+
+	</inputs>
+	<outputs>
+		<data format="tabular" name="kraken_summary_tsv" label="${tool.name} output summary of ${on_string}" />
+		<data name="classified_seqs_fq" format_source="input1" label="${tool.name}-classified sequences from ${on_string}" />
+		<data name="unclassified_seqs_fq" format_source="input1" label="${tool.name}-unclassified sequences from ${on_string}" />
+	</outputs>
+
+	<help>
+	This tool wraps the kraken taxonomic sequence classifier.
+	</help>
+</tool>
