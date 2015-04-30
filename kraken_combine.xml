@@ -1,0 +1,88 @@
+<tool id="kraken_combine" name="kraken_combine">
+	<description>extract unique and common sequences from two kraken runs</description>
+	<requirements>
+		<requirement type="package" version="2.7.4">python</requirement>
+	</requirements>
+	<command interpreter="python">kraken_combine.py
+		--db="${builtinDatabases.fields.path}"
+		--in1="${dataFormat.input1}"
+		--set1-output-left=${set1OutputLeft}
+		--set2-output-left=${set2OutputLeft}
+		--unclassified-output-left=${unclassifiedOutputLeft}
+		--intersection-output-left=${intersectionOutputLeft}
+		--kraken-results1="${classificationSet1}"
+		--kraken-results2="${classificationSet2}"
+
+		#if $dataFormat.inputFormat == "pairedFASTQ" or $dataFormat.inputFormat == "pairedFASTA":
+			--in2="${dataFormat.input2"
+			--set1-output-right=${set1OutputRight}
+			--set2-output-right=${set2OutputRight}
+			--unclassified-output-right=${unclassifiedOutputRight}
+			--intersection-output-right=${intersectionOutputRight}
+		#end if
+
+		#if $dataFormat.inputFormat == "singleFASTQ" or $dataFormat.inputFormat == "pairedFASTQ":
+		  --input-format="fq"
+		#else:
+		  --input-format="fa"
+		#end if
+
+
+
+	</command>
+	<inputs>
+		<param name="builtinDatabases" type="select" label="Select a built-in kraken database">
+			<options from_data_table="krakenDBs">
+				<filter type="sort_by"	 column="2" />
+				<validator type="no_options" message="No databases available" />
+			</options>
+		</param>
+	
+	<conditional name="dataFormat">
+		<param name="inputFormat" type="select" label="Please select input file type and library type."> 
+			<option value="singleFASTQ">Single-end FASTQ</option>
+			<option value="pairedFASTQ">Paired-end FASTQ</option>
+			<option value="singleFASTA">Single-end FASTA</option>
+			<option value="pairedFASTA">Paired-end FASTA</option>
+		</param>
+		<when value="singleFASTQ">
+			<param name="input1" type="data" format="fastq,fq.gz,fq" label="FASTQ file" />
+		</when>
+		<when value="pairedFASTQ">
+			<param name="input1" type="data" format="fastq,fq.gz,fq" label="Forward/Left FASTQ file" />
+			<param name="input2" type="data" format="fastq,fq.gz,fq" label="Reverse/Right FASTQ file" />
+		</when>
+		<when value="singleFASTA">
+			<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="FASTA file" />
+		</when>
+		<when value="pairedFASTA">
+			<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Forward/Left FASTA file" />
+			<param name="input2" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Reverse/Right FASTA file" />
+		</when>
+	</conditional>
+	</inputs>
+
+	<outputs>
+		<data format="input1" name="set1OutputLeft" label="Taxonomy1-unique sequences of ${on_string}" />
+		<data format="input1" name="set2OutputLeft" label="Taxonomy2-unique sequences of ${on_string}" />
+		<data format="input1" name="intersectionOutputLeft" label="Common sequences of ${on_string}" />
+		<data format="input1" name="unclassifiedOutputLeft" label="Unclassified sequences of ${on_string}" />
+
+		<data format="input2" name="set1OutputRight" label="Taxonomy1-unique sequences of ${on_string}">
+			<filter>inputFormat == "pairedFASTQ" or inputFormat == "pairedFASTA"</filter>
+		</data>
+		<data format="input2" name="set2OutputRight" label="Taxonomy2-unique sequences of ${on_string}">
+			<filter>inputFormat == "pairedFASTQ" or inputFormat == "pairedFASTA"</filter>
+		</data>
+		<data format="input2" name="intersectionOutputRight" label="Common sequences of ${on_string}">
+			<filter>inputFormat == "pairedFASTQ" or inputFormat == "pairedFASTA"</filter>
+		</data>
+		<data format="input2" name="unclassifiedOutputRight" label="Unclassified sequences of ${on_string}">
+			<filter>inputFormat == "pairedFASTQ" or inputFormat == "pairedFASTA"</filter>
+		</data>
+	</outputs>
+
+	<help>
+	This tool compares the classification results on a dataset using two different kraken-databases.
+	</help>
+</tool>
