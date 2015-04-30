@@ -37,29 +37,32 @@
 				<validator type="no_options" message="No databases available" />
 			</options>
 		</param>
+
+		<param name="classificationSet1" type="data" format="tabular" label="Kraken classification output set1" />
+		<param name="classificationSet2" type="data" format="tabular" label="Kraken classification output set2" />
 	
-	<conditional name="dataFormat">
-		<param name="inputFormat" type="select" label="Please select input file type and library type."> 
-			<option value="singleFASTQ">Single-end FASTQ</option>
-			<option value="pairedFASTQ">Paired-end FASTQ</option>
-			<option value="singleFASTA">Single-end FASTA</option>
-			<option value="pairedFASTA">Paired-end FASTA</option>
-		</param>
-		<when value="singleFASTQ">
-			<param name="input1" type="data" format="fastq,fq.gz,fq" label="FASTQ file" />
-		</when>
-		<when value="pairedFASTQ">
-			<param name="input1" type="data" format="fastq,fq.gz,fq" label="Forward/Left FASTQ file" />
-			<param name="input2" type="data" format="fastq,fq.gz,fq" label="Reverse/Right FASTQ file" />
-		</when>
-		<when value="singleFASTA">
-			<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="FASTA file" />
-		</when>
-		<when value="pairedFASTA">
-			<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Forward/Left FASTA file" />
-			<param name="input2" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Reverse/Right FASTA file" />
-		</when>
-	</conditional>
+		<conditional name="dataFormat">
+			<param name="inputFormat" type="select" label="Please select input file type and library type."> 
+				<option value="singleFASTQ">Single-end FASTQ</option>
+				<option value="pairedFASTQ">Paired-end FASTQ</option>
+				<option value="singleFASTA">Single-end FASTA</option>
+				<option value="pairedFASTA">Paired-end FASTA</option>
+			</param>
+			<when value="singleFASTQ">
+				<param name="input1" type="data" format="fastq,fq.gz,fq" label="FASTQ file" />
+			</when>
+			<when value="pairedFASTQ">
+				<param name="input1" type="data" format="fastq,fq.gz,fq" label="Forward/Left FASTQ file" />
+				<param name="input2" type="data" format="fastq,fq.gz,fq" label="Reverse/Right FASTQ file" />
+			</when>
+			<when value="singleFASTA">
+				<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="FASTA file" />
+			</when>
+			<when value="pairedFASTA">
+				<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Forward/Left FASTA file" />
+				<param name="input2" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Reverse/Right FASTA file" />
+			</when>
+		</conditional>
 	</inputs>
 
 	<outputs>
