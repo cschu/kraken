@@ -112,6 +112,7 @@
                 <data format="input1" name="kraken_filtered_r1" label="${tool.name} filtered fwd-reads of ${on_string}" />
                 <data format="input2" name="kraken_filtered_r2" label="${tool.name} filtered rev-reads of ${on_string}">
                 	<filter>inputFormat == "pairedFastQ" or inputFormat == "pairedFastA</filter>
+
                 </data>
                 <data format="txt" name="kraken_filter_log" label="${tool.name} logfile (${on_string})" />
 	</outputs>
