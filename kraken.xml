@@ -83,18 +83,18 @@
 				<option value="pairedFastA">Paired-end FastA</option>
 			</param>
 			<when value="singleFastQ">
-				<param name="input1" type="data" format="fastq,fq.gz,fq" label="FastQ file" />
+				<param name="input1" type="data" format="fastq,fastqillumina,fastqsanger,fq" label="FastQ file" />
 			</when>
 			<when value="pairedFastQ">
-				<param name="input1" type="data" format="fastq,fq.gz,fq" label="Forward/Left FastQ file" />
-				<param name="input2" type="data" format="fastq,fq.gz,fq" label="Reverse/Right FastQ file" />
+				<param name="input1" type="data" format="fastq,fastqillumina,fastqsanger,fq" label="Forward/Left FastQ file" />
+				<param name="input2" type="data" format="fastq,fastqillumina,fastqsanger,fq" label="Reverse/Right FastQ file" />
 			</when>
 			<when value="singleFastA">
-				<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="FastA file" />
+				<param name="input1" type="data" format="fasta, fa" label="FastA file" />
 			</when>
 			<when value="pairedFastA">
-				<param name="input1" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Forward/Left FastA file" />
-				<param name="input2" type="data" format="fasta,fasta.gz,fasta.bz2,fa.gz" label="Reverse/Right FastA file" />
+				<param name="input1" type="data" format="fasta, fa" label="Forward/Left FASTA file" />
+				<param name="input2" type="data" format="fasta, fa" label="Reverse/Right FASTA file" />
 			</when>
 		</conditional>
 
