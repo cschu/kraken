@@ -30,8 +30,8 @@
 
 	<!--		$output -->
                 $kraken_summary_tsv
-                $classified_seqs_fq
-                $unclassified_seqs_fq
+                <!-- $classified_seqs_fq
+                $unclassified_seqs_fq -->
 		</command>
 	<inputs>
 		<conditional name="databaseChoice">
@@ -102,8 +102,8 @@
 	</inputs>
 	<outputs>
 		<data format="tabular" name="kraken_summary_tsv" label="${tool.name} output summary of ${on_string}" />
-		<data name="classified_seqs_fq" format_source="input1" label="${tool.name}-classified sequences from ${on_string}" />
-		<data name="unclassified_seqs_fq" format_source="input1" label="${tool.name}-unclassified sequences from ${on_string}" />
+		<!-- <data name="classified_seqs_fq" format_source="input1" label="${tool.name}-classified sequences from ${on_string}" />
+		<data name="unclassified_seqs_fq" format_source="input1" label="${tool.name}-unclassified sequences from ${on_string}" /> -->
 	</outputs>
 
 	<help>
