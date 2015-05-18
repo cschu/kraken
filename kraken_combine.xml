@@ -14,7 +14,7 @@
 		--kraken-results2="${classificationSet2}"
 
 		#if $dataFormat.inputFormat == "pairedFASTQ" or $dataFormat.inputFormat == "pairedFASTA":
-			--in2="${dataFormat.input2"
+			--in2="${dataFormat.input2}"
 			--set1-output-right=${set1OutputRight}
 			--set2-output-right=${set2OutputRight}
 			--unclassified-output-right=${unclassifiedOutputRight}
