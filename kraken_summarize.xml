@@ -1,0 +1,39 @@
+<tool id="candisnp" name="candisnp">
+	<description></description>
+	<requirements>
+	  <requirement type="package" version="2.7.4">python</requirement>
+	</requirements>
+	<command interpreter="python">candisnp.py 
+		#if $snpDb.genomeSrc == 'cached':
+		 --ref="${snpDb.genomeVersion.fields.key}"
+		#end if
+                $input
+                $candisnp_html
+	</command>
+
+
+	<inputs>
+		<param format="vcf" name="input" type="data" label="snpEff output"/>
+		<conditional name="snpDb">
+			<param name="genomeSrc" type="select" label="Genome source">
+				<option value="cached">Locally installed reference genome</option>
+			</param>
+			<when value="cached">
+				<param name="genomeVersion" type="select" label="Genome">
+					<!-- GENOME DESCRIPTION -->
+					<options from_data_table="snpeffv_genomedb">
+						<!-- <filter type="static_value" name="snpeff_version" value="@SNPEFF_VERSION@" column="1"/> -->
+						<filter type="unique_value" column="2"/>
+					</options>
+				</param>
+			</when>
+		</conditional>			
+	</inputs>
+	<outputs>
+		<data format="html" name="candisnp_html" label="${tool.name}" />
+	</outputs>
+
+	<help>
+	This tool is a testtool to issue POST requests from Galaxy.
+	</help>
+</tool>
