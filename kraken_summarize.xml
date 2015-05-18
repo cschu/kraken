@@ -1,39 +1,26 @@
-<tool id="candisnp" name="candisnp">
+<tool id="kraken_summarize" name="kraken_summarize">
 	<description></description>
 	<requirements>
 	  <requirement type="package" version="2.7.4">python</requirement>
 	</requirements>
-	<command interpreter="python">candisnp.py 
-		#if $snpDb.genomeSrc == 'cached':
-		 --ref="${snpDb.genomeVersion.fields.key}"
-		#end if
-                $input
-                $candisnp_html
+	<command interpreter="python">kraken_summarize.py
+		  --krona-output=$krona_output
+			--output=$tax_summary
+			--call-krona=$krona_html
+			$kraken_summary_tsv
 	</command>
 
 
 	<inputs>
-		<param format="vcf" name="input" type="data" label="snpEff output"/>
-		<conditional name="snpDb">
-			<param name="genomeSrc" type="select" label="Genome source">
-				<option value="cached">Locally installed reference genome</option>
-			</param>
-			<when value="cached">
-				<param name="genomeVersion" type="select" label="Genome">
-					<!-- GENOME DESCRIPTION -->
-					<options from_data_table="snpeffv_genomedb">
-						<!-- <filter type="static_value" name="snpeff_version" value="@SNPEFF_VERSION@" column="1"/> -->
-						<filter type="unique_value" column="2"/>
-					</options>
-				</param>
-			</when>
-		</conditional>			
-	</inputs>
+		<param format="tabular" name="kraken_summary_tsv" type="data" label="Kraken summary table"/>
+		</inputs>
 	<outputs>
-		<data format="html" name="candisnp_html" label="${tool.name}" />
+		<data format="html" name="krona_html" label="Krona visualization of ${tool.name}" />
+		<data format="tabular" name="krona_output" label="Krona input" />
+		<data format="tabular" name="tax_summary" label="Taxonomy class summary" />
 	</outputs>
 
 	<help>
-	This tool is a testtool to issue POST requests from Galaxy.
+	Krona visualisation and classification summary of Kraken runs.
 	</help>
 </tool>
