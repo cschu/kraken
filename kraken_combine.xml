@@ -4,7 +4,6 @@
 		<requirement type="package" version="2.7.4">python</requirement>
 	</requirements>
 	<command interpreter="python">kraken_combine.py
-		--db="${builtinDatabases.fields.path}"
 		--in1="${dataFormat.input1}"
 		--set1-output-left=${set1OutputLeft}
 		--set2-output-left=${set2OutputLeft}
@@ -31,13 +30,6 @@
 
 	</command>
 	<inputs>
-		<param name="builtinDatabases" type="select" label="Select a built-in kraken database">
-			<options from_data_table="krakenDBs">
-				<filter type="sort_by"	 column="2" />
-				<validator type="no_options" message="No databases available" />
-			</options>
-		</param>
-
 		<param name="classificationSet1" type="data" format="tabular" label="Kraken classification output set1" />
 		<param name="classificationSet2" type="data" format="tabular" label="Kraken classification output set2" />
 	
@@ -66,21 +58,21 @@
 	</inputs>
 
 	<outputs>
-		<data format="input1" name="set1OutputLeft" label="Taxonomy1-unique sequences of ${on_string}" />
-		<data format="input1" name="set2OutputLeft" label="Taxonomy2-unique sequences of ${on_string}" />
-		<data format="input1" name="intersectionOutputLeft" label="Common sequences of ${on_string}" />
-		<data format="input1" name="unclassifiedOutputLeft" label="Unclassified sequences of ${on_string}" />
+		<data format="input1" name="set1OutputLeft" label="Taxonomy1-unique sequences (R1) of ${on_string}" />
+		<data format="input1" name="set2OutputLeft" label="Taxonomy2-unique sequences (R1) of ${on_string}" />
+		<data format="input1" name="intersectionOutputLeft" label="Common sequences (R1) of ${on_string}" />
+		<data format="input1" name="unclassifiedOutputLeft" label="Unclassified sequences (R1) of ${on_string}" />
 
-		<data format="input2" name="set1OutputRight" label="Taxonomy1-unique sequences of ${on_string}">
+		<data format="input2" name="set1OutputRight" label="Taxonomy1-unique sequences (R2) of ${on_string}">
 			<filter>inputFormat == "pairedFASTQ" or inputFormat == "pairedFASTA"</filter>
 		</data>
-		<data format="input2" name="set2OutputRight" label="Taxonomy2-unique sequences of ${on_string}">
+		<data format="input2" name="set2OutputRight" label="Taxonomy2-unique sequences (R2) of ${on_string}">
 			<filter>inputFormat == "pairedFASTQ" or inputFormat == "pairedFASTA"</filter>
 		</data>
-		<data format="input2" name="intersectionOutputRight" label="Common sequences of ${on_string}">
+		<data format="input2" name="intersectionOutputRight" label="Common sequences (R2) of ${on_string}">
 			<filter>inputFormat == "pairedFASTQ" or inputFormat == "pairedFASTA"</filter>
 		</data>
-		<data format="input2" name="unclassifiedOutputRight" label="Unclassified sequences of ${on_string}">
+		<data format="input2" name="unclassifiedOutputRight" label="Unclassified sequences (R2) of ${on_string}">
 			<filter>inputFormat == "pairedFASTQ" or inputFormat == "pairedFASTA"</filter>
 		</data>
 	</outputs>

@@ -25,21 +25,17 @@ def main(argv):
     parser.add_argument('--min-hits', default=1, help='Minimum number of hits required.')
     parser.add_argument('--input-format', help='Input sequences stored in fa or fq file(s).', default='fq')
     parser.add_argument('kraken_summary_tsv', type=str, help='The output file.')
-    parser.add_argument('classified_seqs_fq', type=str, help='The output file.')
-    parser.add_argument('unclassified_seqs_fq', type=str, help='The output file.')
+    # parser.add_argument('classified_seqs_fq', type=str, help='The output file.')
+    # parser.add_argument('unclassified_seqs_fq', type=str, help='The output file.')
     args = parser.parse_args()
 
     #  kraken --preload --db /tsl/scratch/macleand/ktest/db --threads 12 --quick --classified-out classified_seqs.fq --unclassified-out unclassified.fq --fastq-input --min-hits 1 --output classification.txt left_reads.fq right_reads.fq
 
     kraken_params = ['--preload', '--threads', '8', 
-                     '--classified-out', args.classified_seqs_fq,
                      '--unclassified-out', args.unclassified_seqs_fq,
                      '--output', args.kraken_summary_tsv]
+    #                '--classified-out', args.classified_seqs_fq,
     kraken_input = []
-
-
-
-
 
     if 'db' not in args or not os.path.exists(args.db):
         sys.stderr.write('Error: database is missing.\n')
