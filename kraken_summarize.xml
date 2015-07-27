@@ -1,13 +1,17 @@
 <tool id="kraken_summarize" name="kraken_summarize">
 	<description></description>
 	<requirements>
-	  <requirement type="package" version="2.7.4">python</requirement>
+	  <requirement type="package" version="2.7">python</requirement>
+	  <requirement type="set_environment">PYTHONPATH</requirement>
 	</requirements>
-	<command interpreter="python">kraken_summarize.py
-		  --krona-output=$krona_output
-			--output=$tax_summary
-			--call-krona=$krona_html
+	<command>
+	<![CDATA[
+	python /tsl/services/galaxy/dist/galaxy-dist/tools/kraken/kraken_summarize.py
+		  --krona-output="${krona_output}"
+			--output="${tax_summary}"
+			--call-krona="${krona_html}"
 			$kraken_summary_tsv
+	]]>
 	</command>
 
 

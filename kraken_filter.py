@@ -77,20 +77,23 @@ def getFastqIdentifier(string):
 
 def runFilter(db, taxID, inputClassification, inputR1, outputR1, inputR2=None, outputR2=None, fastx=4, debug=False):
     global logfile
-    logfile.write('Reading taxonomy...\n')
-    logfile.flush()
-    taxonomyInfo = readTaxonomy(db)
     keepSequences = set()
-    logfile.write('Traversing requested taxonomy branch...\n')
-    logfile.flush()
-    validIDs = getDescendents(taxID, taxonomyInfo[2])
-    logfile.write('Family tree of %s has %i descendents.\n' % (str(taxID), len(validIDs)))
-    logfile.flush()
-    if debug:
-        for vid in validIDs:
-            logfile.write('Added %s to validIDs.\n' % vid)
-            logfile.flush()
-	
+    if taxID != 0:
+        logfile.write('Reading taxonomy...\n')
+        logfile.flush()
+        taxonomyInfo = readTaxonomy(db)
+        logfile.write('Traversing requested taxonomy branch...\n')
+        logfile.flush()
+        validIDs = getDescendents(abs(taxID), taxonomyInfo[2])
+        logfile.write('Family tree of %s has %i descendents.\n' % (str(abs(taxID)), len(validIDs)))
+        logfile.flush()
+ 
+        if debug:
+            for vid in validIDs:
+                logfile.write('Added %s to validIDs.\n' % vid)
+                logfile.flush()
+    else:
+        validIDs = set()	
 
     logfile.write('Filtering sequences...\n')
     logfile.flush()
@@ -98,13 +101,32 @@ def runFilter(db, taxID, inputClassification, inputR1, outputR1, inputR2=None, o
     for line in open(inputClassification):
         nseqs += 1
         line = line.strip().split()
-        takeUnclassified = taxID == 0 and line[0] == 'U'
-        takeClassified = line[0] == 'C' and int(line[2]) in validIDs
+
+        if taxID > 0:
+            # if extract reads from branch
+            # no unclassified reads
+            takeUnclassified = False # taxID == 0 and line[0] == 'U'
+            # and only reads that have been assigned a taxonomy id belonging to the branch
+            takeClassified = line[0] == 'C' and int(line[2]) in validIDs        
+        elif taxID < 0:
+            # if ignore reads from branch
+            # allow unclassified reads
+            takeUnclassified = line[0] == 'U'
+            # and take only reads that have been a taxonomy id outside of the branch
+            takeClassified = line[0] == 'C' and int(line[2]) not in validIDs            
+        else:
+            # if extract unclassified
+            # allow unclassified reads
+            takeUnclassified = taxID == 0 and line[0] == 'U' 
+            # and no classified ones
+            takeClassified = False
+
         if takeUnclassified or takeClassified:            
             keepSequences.add(line[1].strip())
             if debug:
                 logfile.write('Added %s to keepSequences.\n' % line[1].strip())
                 logfile.flush()
+
     logfile.write('Keeping %i of %i sequences (%.1f).\n' % (len(keepSequences), nseqs, float(len(keepSequences))/nseqs))
     logfile.flush()
     logfile.write('Writing filtered sequence sets...\n')
@@ -208,9 +230,9 @@ def main(argv):
     else:
         input2, output2 = None, None
 
-    if args.taxid < 0:
-        sys.stderr.write('Error: invalid taxon id %i\n' % args.taxid)
-        sys.exit(1)
+    # if args.taxid < 0:
+    #    sys.stderr.write('Error: invalid taxon id %i\n' % args.taxid)
+    #    sys.exit(1)
     kraken_params.extend(['--taxid', args.taxid])
 
     if args.input_format == 'fq': 

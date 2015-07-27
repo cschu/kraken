@@ -32,7 +32,7 @@ def main(argv):
     #  kraken --preload --db /tsl/scratch/macleand/ktest/db --threads 12 --quick --classified-out classified_seqs.fq --unclassified-out unclassified.fq --fastq-input --min-hits 1 --output classification.txt left_reads.fq right_reads.fq
 
     kraken_params = ['--preload', '--threads', '8', 
-                     '--unclassified-out', args.unclassified_seqs_fq,
+    #                 '--unclassified-out', args.unclassified_seqs_fq,
                      '--output', args.kraken_summary_tsv]
     #                '--classified-out', args.classified_seqs_fq,
     kraken_input = []
