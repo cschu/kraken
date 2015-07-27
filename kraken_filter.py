@@ -27,9 +27,47 @@ def getDescendents(taxID, tree):
         pass
     return descendents
 
+def getSeqsFromFastq(fn):
+    it = open(fn)
+    head = ''
+    block = []
+    for line in it:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith('@'):
+            head = line
+        elif line.startswith('+'):
+            seq = ''.join(block)
+            qual = ''.join([it.next().strip() for row in block])
+            yield (head, (seq, '+', qual))
+            block, head = [], ''
+        else:
+            block.append(line)
+
+def getSeqsFromFasta(fn):
+    it = open(fn)
+    head = ''
+    block = []
+    for line in it:
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith('>'):
+            if block:
+                yield (head, (''.join(block),))
+                block = []
+            head = line
+        else:
+            block.append(line)
+    if block:
+        yield (head, (''.join(block),))
+
 def anabl_getSeqsFromFastX(fn, X=2):
     it = open(fn)
     for head in it:
+        if not head.strip():
+            continue
         try:
             yield (head.strip(), tuple(map(lambda x:x.strip(),
                                        ([it.next() for i in xrange(X - 1)]))))
@@ -132,27 +170,40 @@ def runFilter(db, taxID, inputClassification, inputR1, outputR1, inputR2=None, o
     logfile.flush()
     logfile.write('Writing filtered sequence sets...\n')
     logfile.flush()
+   
+    if fastx == 4:
+        getID = getFastqIdentifier 
+        getSeqs = getSeqsFromFastq
+    else:
+        getID = getFastaIdentifier
+        getSeqs = getSeqsFromFasta
+
+
     fwdOut = open(outputR1, 'wb')
-    fwdGen = anabl_getSeqsFromFastX(inputR1, X=fastx)
+    fwdGen = getSeqs(inputR1) # anabl_getSeqsFromFastX(inputR1, X=fastx)
 
     revOut, revGen = None, None
     revSid, revSeq = None, None
     if outputR2 is not None and inputR2 is not None:
         revOut = open(outputR2, 'wb')
-        revGen = anabl_getSeqsFromFastX(inputR2, X=fastx)
+        revGen = getSeqs(inputR2) # anabl_getSeqsFromFastX(inputR2, X=fastx)
 
-    getID = getFastqIdentifier if fastx == 4 else getFastaIdentifier
 
     fxid1, fxid2 = None, None
     while True:
         try:
             fwdSid, fwdSeq = fwdGen.next()
-            fxid1 = getID(fwdSid)
-            if revGen is not None:
-                revSid, revSeq = revGen.next()
-                fxid2 = getID(revSid)
         except:
             break
+        logfile.write('*%s*\n' % fwdSid)
+        fxid1 = getID(fwdSid)
+        if revGen is not None:
+            try:
+                revSid, revSeq = revGen.next()
+            except:
+                break
+            fxid2 = getID(revSid)
+
         if fxid1 != fxid2 and fxid2 is not None:
             sys.stderr.write('Error: fxid-mismatch %s %s.\n' % (fxid1, fxid2))
             sys.exit(1)
