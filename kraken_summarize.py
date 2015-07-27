@@ -5,12 +5,11 @@ import argparse
 
 from collections import Counter
 
-from Bio import Entrez
-
 
 
 # U	HWI-ST933:109:C2A2NACXX:5:1101:1311:2013	0	50	Q:0
 def fetchTaxonomyData(ids, email='christian.schudoma@tsl.ac.uk'):
+    from Bio import Entrez
     Entrez.email = email
     handle = Entrez.efetch(db='Taxonomy', id=','.join(ids), retmode='xml')
     records = Entrez.read(handle)
@@ -20,16 +19,18 @@ def writeKronaInput(fi, taxInfo, unclassified=0):
     if unclassified:
         fi.write('%i\tUnclassified\n' % unclassified)
     for tid in sorted(taxInfo, key=lambda x:taxInfo[x][0]['Lineage']):
-        fi.write('%i\t%s\n' % (taxInfo[tid][1], '; '.join([taxInfo[tid][0]['Lineage'].strip(), taxInfoDict[tid][0]['ScientificName']]).replace('; ', '\t').strip('\t')))
+        fi.write('%i\t%s\n' % (taxInfo[tid][1], '; '.join([taxInfo[tid][0]['Lineage'].strip(), taxInfo[tid][0]['ScientificName']]).replace('; ', '\t').strip('\t')))
     pass
 
 def writeOutput(out, taxInfoDict, c):
     for tid in sorted(taxInfoDict, reverse=True, key=lambda x:taxInfoDict[x][1]):
         data = [tid, taxInfoDict[tid][1], taxInfoDict[tid][0]['TaxId'], taxInfoDict[tid][0]['Lineage'], taxInfoDict[tid][0]['ScientificName']]
-        out.write('\t'.join(data) + '\n')
+        out.write('\t'.join(map(str, data)) + '\n')
     data = (sum(c.values()) - c['0'], sum(c.values()), (sum(c.values()) - c['0']) / float(sum(c.values())) * 100, c['0'])
-    out.write('%i/%i (%.5f%%) classified, %i unclassified\n' % data)
-
+    try:
+        out.write('%i/%i (%.5f%%) classified, %i unclassified\n' % data)
+    except:
+        out.write(str(data) + ':ERR\n')
 
 def main(argv):
 
@@ -41,7 +42,13 @@ def main(argv):
     parser.add_argument('kraken_summary_tsv', type=str)
     args = parser.parse_args()
 
-    c = Counter(line.strip().split()[2] for line in open(sys.argv[1]))
+    #with open(args.output, 'wb') as fo:
+    #    fo.write(sys.version + '\n')
+    #    import os
+    #    fo.write(os.environ.get('PYTHONPATH', 'N/A') + '\n')
+    c = Counter(line.strip().split()[2] for line in open(args.kraken_summary_tsv))
+
+     
     taxids = sorted(c.keys(), key=lambda x:c[x], reverse=True)
     taxData = fetchTaxonomyData(taxids)
     taxInfoDict = {tinfo['TaxId']: [tinfo, c[tinfo['TaxId']]] for tinfo in taxData}
@@ -55,20 +62,28 @@ def main(argv):
                 writeKronaInput(kr_out, taxInfoDict)
 
         if 'call_krona' in args:
-            p = subprocess.Popen('source krona_tools-2.4; ktImportText -o %s %s' % (args.call_krona, args.krona_output), shell=True, stdout=subprocess.PIPE)
-            p.communicate()
-
+            cmd = 'source krona_tools-2.4; ktImportText -o %s %s' % (args.call_krona, args.krona_output)            
+            # cmd = ['source', 'krona_tools-2.4;', 'ktImportText', '-o', args.call_krona, args.krona_output] 
+            p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            so, se = p.communicate()
+            """
+            with open(args.output, 'wb') as out: 
+                out.write(str(se))
+                return None
+            """
     if 'output' in args:
         if args.output == '-':
-            writeOutput(sys.stdout, taxInfoDict, c)
+            # writeOutput(sys.stdout, taxInfoDict, c)
+            pass
         else:
             with open(args.output, 'wb') as out:
                 writeOutput(out, taxInfoDict, c)
+    
 
 
 
 
-
+if __name__ == '__main__': main(sys.argv)
 
 
 
