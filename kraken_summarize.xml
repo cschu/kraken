@@ -1,7 +1,8 @@
 <tool id="kraken_summarize" name="kraken_summarize">
 	<description></description>
 	<requirements>
-	  <requirement type="package" version="2.7.4">python</requirement>
+	  <requirement type="package" version="2.7">python</requirement>
+          <requirement type="package" version="1.65">biopython<requirement>
 	</requirements>
 	<command interpreter="python">kraken_summarize.py
 		  --krona-output=$krona_output

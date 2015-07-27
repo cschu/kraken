@@ -1,0 +1,7 @@
+<tables>
+    <!-- Locations of kraken databases -->
+    <table name="krakenDBs" comment_char="#">
+        <columns>value, dbkey, name, path</columns>
+        <file path="tool-data/krakenDBs.loc" />
+    </table>
+</tables>
