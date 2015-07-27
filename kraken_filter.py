@@ -66,14 +66,15 @@ def readTaxonomy(db):
             nodeChildren[line[1]] = set([line[0]])
         nodeRanks.append((line[0], line[2]))
         # break
-
     return dict(nodeNames), dict(nodeRanks), nodeChildren
 
+def isPreCassava18(string):
+    return string.endswith('/1') or string.endswith('/2')
 def getFastqIdentifier(string):
-    if string.endswith('/1') or string.endswith('/2'):
-        return string[1:-2]
-    else:
-        return string.split()[0][1:]
+    return string[1:-2] if isPreCassava18(string) else string.split()[0][1:]
+def getFastaIdentifier(string):
+    string = string.split()[0][1:]
+    return string[:-2] if isPreCassava18(string) else string
 
 def runFilter(db, taxID, inputClassification, inputR1, outputR1, inputR2=None, outputR2=None, fastx=4, debug=False):
     global logfile
@@ -133,27 +134,29 @@ def runFilter(db, taxID, inputClassification, inputR1, outputR1, inputR2=None, o
     logfile.flush()
     fwdOut = open(outputR1, 'wb')
     fwdGen = anabl_getSeqsFromFastX(inputR1, X=fastx)
-  
+
     revOut, revGen = None, None
     revSid, revSeq = None, None
     if outputR2 is not None and inputR2 is not None:
         revOut = open(outputR2, 'wb')
         revGen = anabl_getSeqsFromFastX(inputR2, X=fastx)
-    
-    fqid1, fqid2 = None, None
+
+    getID = getFastqIdentifier if fastx == 4 else getFastaIdentifier
+
+    fxid1, fxid2 = None, None
     while True:
         try:
             fwdSid, fwdSeq = fwdGen.next()
-            fqid1 = getFastqIdentifier(fwdSid)
+            fxid1 = getID(fwdSid)
             if revGen is not None:
                 revSid, revSeq = revGen.next()
-                fqid2 = getFastqIdentifier(revSid)
+                fxid2 = getID(revSid)
         except:
             break
-        if fqid1 != fqid2 and fqid2 is not None:
-            sys.stderr.write('Error: fqid-mismatch %s %s.\n' % (fqid1, fqid2))
+        if fxid1 != fxid2 and fxid2 is not None:
+            sys.stderr.write('Error: fxid-mismatch %s %s.\n' % (fxid1, fxid2))
             sys.exit(1)
-        if fqid1 in keepSequences:
+        if fxid1 in keepSequences:
             fwdOut.write(('%s\n' * fastx) % ((fwdSid,) + fwdSeq))
             if revOut is not None:
                 revOut.write(('%s\n' * fastx) % ((revSid,) + revSeq))
@@ -167,7 +170,7 @@ def runFilter(db, taxID, inputClassification, inputR1, outputR1, inputR2=None, o
 
 
 def main(argv):
-    
+
     descr = ''
     parser = argparse.ArgumentParser(description=descr)
     parser.add_argument('--dbtype', default='builtinDB', help='Is database built-in or supplied externally?')
@@ -216,7 +219,7 @@ def main(argv):
             sys.exit(1)
         elif args.in2 is not None and not verifyFileFormat(args.in2, args.input_format):
             sys.stderr.write('Error: rev input file has the wrong format assigned.\n')
-            sys.exit(1)            
+            sys.exit(1)
         elif args.in2 is not None:
             kraken_params.append('--paired')
             kraken_input.append(args.in2)
@@ -224,7 +227,7 @@ def main(argv):
             pass
     else:
         pass
-    
+
     if 'out2' in args and 'in2' in args:
         input2, output2 = args.in2, args.out2
     else:
@@ -235,7 +238,7 @@ def main(argv):
     #    sys.exit(1)
     kraken_params.extend(['--taxid', args.taxid])
 
-    if args.input_format == 'fq': 
+    if args.input_format == 'fq':
         kraken_params.append('--fastq-input')
         fastx = 4
     else:
@@ -258,8 +261,8 @@ def main(argv):
     #    pass
 
     #open(args.kraken_filtered_r1, 'wb').write('\n'.join(map(str, kraken_params + kraken_input)))
-   
-    runFilter(args.db, int(args.taxid), args.kraken_results, 
+
+    runFilter(args.db, int(args.taxid), args.kraken_results,
               args.in1, args.out1,
               inputR2=input2, outputR2=output2, fastx=fastx,
               debug=args.debug)
@@ -269,8 +272,8 @@ def main(argv):
     pass
 
 
- 
-    
+
+
 # main(sys.argv[1:])
 
 if __name__ == '__main__': main(sys.argv[1:])

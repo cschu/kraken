@@ -1,7 +1,7 @@
 <tool id="kraken" name="kraken">
 	<description>taxonomic sequence classifier</description>
 	<requirements>
-	  <requirement type="package" version="2.7.4">python</requirement>
+	  <requirement type="package" version="2.7">python</requirement>
 	  <requirement type="package" version="0.10.5">kraken</requirement>
 	</requirements>
 	<command interpreter="python">kraken.py 

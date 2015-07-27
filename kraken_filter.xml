@@ -1,7 +1,7 @@
 <tool id="kraken_filter" name="kraken_filter">
 	<description>kraken result filter</description>
 	<requirements>
-	  <requirement type="package" version="2.7.4">python</requirement>
+	  <requirement type="package" version="2.7">python</requirement>
 	</requirements>
 	<command interpreter="python">kraken_filter.py 
 		--dbtype="${databaseChoice.database}"
